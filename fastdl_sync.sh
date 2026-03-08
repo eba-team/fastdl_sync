@@ -13,7 +13,7 @@ fi
 
 PORT="$1"
 FASTDL_BASE="/fastdl"
-FASTDL_DIR="$FASTDL_BASE/cs_$PORT"
+FASTDL_DIR="$FASTDL_BASE/csgo_$PORT"
 
 FOLDERS=(
     "expressions"
