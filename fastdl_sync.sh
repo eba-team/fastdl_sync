@@ -29,7 +29,7 @@ echo "Using FastDL directory: $FASTDL_DIR"
 
 mkdir -p "$FASTDL_DIR"
 
-echo "Starting FastDL build..."
+echo "Starting compression..."
 
 for folder in "${FOLDERS[@]}"; do
 
@@ -39,7 +39,7 @@ for folder in "${FOLDERS[@]}"; do
 
     echo "Processing folder: $folder"
 
-    find "$folder" -type f ! -name "*.bz2" | while read file; do
+    find "$folder" -type f ! -name "*.bz2" | while read -r file; do
 
         bz2file="$file.bz2"
 
@@ -54,13 +54,23 @@ done
 
 echo "Compression finished."
 
-echo "Moving bz2 files to FastDL..."
+echo "Copying bz2 files to FastDL..."
 
-rsync -av \
---include="*/" \
---include="*.bz2" \
---exclude="*" \
---remove-source-files \
-./ "$FASTDL_DIR/"
+find . -type f -name "*.bz2" | while read -r file; do
 
-echo "FastDL sync completed for server port $PORT."
+    dest="$FASTDL_DIR/$file"
+
+    mkdir -p "$(dirname "$dest")"
+
+    # Copy only if new or changed
+    if [ ! -f "$dest" ] || [ "$file" -nt "$dest" ]; then
+        echo "Copying: $file"
+        cp "$file" "$dest"
+    fi
+
+    # Remove bz2 from server after copy
+    rm -f "$file"
+
+done
+
+echo "FastDL sync completed for port $PORT."
