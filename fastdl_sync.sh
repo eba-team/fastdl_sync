@@ -12,7 +12,8 @@ if [ -z "$1" ]; then
 fi
 
 PORT="$1"
-FASTDL_DIR="/var/www/html/fastdl.ebateam.eu/cs_$PORT"
+FASTDL_BASE="/var/www/html/fastdl.ebateam.eu"
+FASTDL_DIR="$FASTDL_BASE/cs_$PORT"
 
 FOLDERS=(
     "expressions"
@@ -25,10 +26,13 @@ FOLDERS=(
     "scripts"
 )
 
+# Create FastDL base + server directory if missing
+if [ ! -d "$FASTDL_DIR" ]; then
+    echo "Creating FastDL directory: $FASTDL_DIR"
+    mkdir -p "$FASTDL_DIR"
+fi
+
 echo "Using FastDL directory: $FASTDL_DIR"
-
-mkdir -p "$FASTDL_DIR"
-
 echo "Starting compression..."
 
 for folder in "${FOLDERS[@]}"; do
@@ -42,13 +46,13 @@ for folder in "${FOLDERS[@]}"; do
         bz2file="$file.bz2"
         fastdl_bz2="$FASTDL_DIR/$bz2file"
 
-        # Skip if bz2 already exists in FastDL
+        # Skip if already exists in FastDL
         if [ -f "$fastdl_bz2" ]; then
             echo "Skipping (already in FastDL): $file"
             continue
         fi
 
-        # Compress if bz2 missing locally
+        # Compress if bz2 missing
         if [ ! -f "$bz2file" ]; then
             echo "Compressing: $file"
             bzip2 -zk "$file"
@@ -66,6 +70,7 @@ find . -type f -name "*.bz2" | while read -r file; do
 
     dest="$FASTDL_DIR/$file"
 
+    # Create destination directory structure
     mkdir -p "$(dirname "$dest")"
 
     if [ ! -f "$dest" ]; then
@@ -73,6 +78,7 @@ find . -type f -name "*.bz2" | while read -r file; do
         cp "$file" "$dest"
     fi
 
+    # Remove bz2 from server after copying
     rm -f "$file"
 
 done
