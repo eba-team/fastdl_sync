@@ -12,7 +12,7 @@ if [ -z "$1" ]; then
 fi
 
 PORT="$1"
-FASTDL_BASE="/var/www/html/fastdl.ebateam.eu"
+FASTDL_BASE="/fastdl"
 FASTDL_DIR="$FASTDL_BASE/cs_$PORT"
 
 FOLDERS=(
