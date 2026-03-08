@@ -33,19 +33,25 @@ echo "Starting compression..."
 
 for folder in "${FOLDERS[@]}"; do
 
-    if [ ! -d "$folder" ]; then
-        continue
-    fi
+    [ -d "$folder" ] || continue
 
     echo "Processing folder: $folder"
 
     find "$folder" -type f ! -name "*.bz2" | while read -r file; do
 
         bz2file="$file.bz2"
+        fastdl_bz2="$FASTDL_DIR/$bz2file"
 
-        if [ ! -f "$bz2file" ] || [ "$file" -nt "$bz2file" ]; then
+        # Skip if bz2 already exists in FastDL
+        if [ -f "$fastdl_bz2" ]; then
+            echo "Skipping (already in FastDL): $file"
+            continue
+        fi
+
+        # Compress if bz2 missing locally
+        if [ ! -f "$bz2file" ]; then
             echo "Compressing: $file"
-            bzip2 -zkf "$file"
+            bzip2 -zk "$file"
         fi
 
     done
@@ -62,13 +68,11 @@ find . -type f -name "*.bz2" | while read -r file; do
 
     mkdir -p "$(dirname "$dest")"
 
-    # Copy only if new or changed
-    if [ ! -f "$dest" ] || [ "$file" -nt "$dest" ]; then
+    if [ ! -f "$dest" ]; then
         echo "Copying: $file"
         cp "$file" "$dest"
     fi
 
-    # Remove bz2 from server after copy
     rm -f "$file"
 
 done
