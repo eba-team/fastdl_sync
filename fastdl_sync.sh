@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Move into csgo directory if it exists
+if [ -d "csgo" ]; then
+    cd csgo || exit
+fi
+
 # Check parameter
 if [ -z "$1" ]; then
     echo "Usage: $0 <server_port>"
@@ -7,7 +12,7 @@ if [ -z "$1" ]; then
 fi
 
 PORT="$1"
-FASTDL_DIR="/var/www/html/fastdl.ebateam.eu/csgo_$PORT"
+FASTDL_DIR="/var/www/html/fastdl.ebateam.eu/cs_$PORT"
 
 FOLDERS=(
     "expressions"
@@ -22,12 +27,10 @@ FOLDERS=(
 
 echo "Using FastDL directory: $FASTDL_DIR"
 
-# Create FastDL directory if missing
 mkdir -p "$FASTDL_DIR"
 
 echo "Starting FastDL build..."
 
-# Compress files
 for folder in "${FOLDERS[@]}"; do
 
     if [ ! -d "$folder" ]; then
@@ -60,4 +63,4 @@ rsync -av \
 --remove-source-files \
 ./ "$FASTDL_DIR/"
 
-echo "FastDL sync completed for server csgo_$PORT."
+echo "FastDL sync completed for server port $PORT."
